@@ -8,10 +8,11 @@ var io = require('socket.io')(http);
 
 io.on('connection', function(socket) {
     console.log('connected!');
-    // socket.on('chat message', function(msg) {
-    //     io.emit('chat message', msg);
-    //    socket.broadcast.emit('chat message', msg);
-    // });
+    socket.on('chat message', function(msg) {
+        io.emit('chat message', msg);
+        console.log(msg);
+       // socket.broadcast.emit('chat message', msg);
+    });
 });
 
 http.listen(3000, function() {
