@@ -1,13 +1,30 @@
 $(function() {
-        var socket = io.connect('http://localhost:3000');
-        console.log(socket);
-        $('form').submit(function() {
-            socket.emit('chat message', $('#m').val());
-            $('#m').val('');
-            return false;
+    var socket = io.connect('http://localhost:3000');
+    $('form').submit(function() {
+        chrome.tabs.query({'active': true, 'currentWindow': true}, function (tabs) {
+            var url = tabs[0].url;
+            $('#tag').val('');
+            if(isValidURL(url)) {
+                socket.emit('post', $('#tag').val(), url);
+            } else {
+                $('#tag').attr('placeholder', 'Current tab is not an url'); 
+            }
         });
-        socket.on('chat message', function(msg) {
-            $('#messages').append($('<li>').text(msg));
-        });
+        return false;
+    });
+
+    socket.on('receive', function(tag, link) {
+        $('#linklist').append($('<li>').text(link));
+    });
 });
+
+
+function isValidURL(str) {
+    var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+    if(!regex .test(str)) {
+        return false;
+    } else {
+        return true;
+    }
+}
 

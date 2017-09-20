@@ -4,6 +4,9 @@
     "name": "Link River",
     "version": "1.0",
     "manifest_version": 2,
+    "permissions": [
+        "tabs"
+    ],
 
     //recommended
     "description": "Enable user to share and search link with label query",

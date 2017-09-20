@@ -37,7 +37,7 @@ form button {
     background: rgb(130, 224, 255);
 }
 
-#messages {
+#linklist {
     position: fixed;
     bottom: 0;
     height: 90%;
@@ -48,10 +48,10 @@ form button {
     overflow-y: scroll;
 }
 
-#messages li {
+#linklist li {
     padding: 5px 10px; 
 }
 
-#messages li:nth-child(odd) {
+#linklist li:nth-child(odd) {
     background: #eee; 
 }

@@ -7,10 +7,10 @@ var io = require('socket.io')(http);
 // });
 
 io.on('connection', function(socket) {
-    console.log('connected!');
-    socket.on('chat message', function(msg) {
-        io.emit('chat message', msg);
-        console.log(msg);
+    console.log('connected');
+    socket.on('post', function(tag, link) {
+
+        io.emit('receive', tag, link);
        // socket.broadcast.emit('chat message', msg);
     });
 });
