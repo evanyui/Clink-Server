@@ -1,9 +1,17 @@
 {
-    "name": "LinkRiver",
+    "name": "Clink",
     "version": "0.0.1",
-    "description": "Backend server for LinkRiver that populate and manage links",
+    "description": "Backend server for Clink that populate and manage links",
     "dependencies": {
         "express": "^4.15.2",
+        "mongodb": "^2.2.31",
         "socket.io": "^2.0.3"
+    },
+    "scripts": {
+        "start": "node app.js",
+        "test": "node app.js",
+        "prestart": "rm -rf data/* && mongod --dbpath=data --fork --logpath /dev/null",
+        "prestop": "mongo admin --eval 'db.shutdownServer() > /dev/null'",
+        "pretest": "rm -rf data/* && mongod --dbpath=data --fork --logpath /dev/null"
     }
 }
