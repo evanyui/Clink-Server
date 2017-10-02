@@ -38,6 +38,7 @@ io.on('connection', function(socket) {
 
 // Helper function to create documents with different tags on one link
 var createDocuments = function(tagString, link) {
+    // To prevent duplication, use set to convert from and to array
     var tags = Array.from(new Set(tagString.split(/[ ,]+/)));
     var documents = [];
     tags.forEach(function(tag) {
