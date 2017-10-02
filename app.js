@@ -11,11 +11,14 @@ var url = 'mongodb://localhost:27017/clink';
 
 io.on('connection', function(socket) {
     console.log('connected');
-    socket.on('post', function(tag, link) {
+    socket.on('post', function(tagString, link) {
         // Connect to mongodb
         mongoClient.connect(url, function(err, db) {
             var collection = db.collection('documents');
-            insertDocuments(link, tag, collection, function() {
+            var documents = createDocuments(tagString, link); 
+            insertDocuments(documents, collection, function() {
+
+                // FOR TESTING
                 // Search everything from the collection and print result
                 collection.find({}).toArray(function(err, result) {
                     console.log(result);
@@ -26,15 +29,26 @@ io.on('connection', function(socket) {
             });
         });
 
+        // TODO: Will replaced by return query result only when user query db
+        // FOR TESTING
         // Send the tag link pair to every client
-        io.emit('receive', tag, link);
+        io.emit('receive', tagString, link);
     });
 });
 
+// Helper function to create documents with different tags on one link
+var createDocuments = function(tagString, link) {
+    var tags = Array.from(new Set(tagString.split(/[ ,]+/)));
+    var documents = [];
+    tags.forEach(function(tag) {
+        documents.push({key: tag, url: link});
+    });
+    return documents;
+}
+
 // Helper function to insert documents to db
-var insertDocuments = function(link, tag, collection, callback) {
-    var document = { key: tag, url: link};
-    collection.insertOne(document, function(err, result) {
+var insertDocuments = function(documents, collection, callback) {
+    collection.insertMany(documents, function(err, result) {
         callback(result);
     });
 }
