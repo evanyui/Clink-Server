@@ -9,37 +9,87 @@ var url = 'mongodb://localhost:27017/clink';
 //    res.sendFile(__dirname + '/html/index.html');
 // });
 
+// When a user is connected
 io.on('connection', function(socket) {
+    // Logging purpose only
     console.log('connected');
-    socket.on('post', function(tagString, link) {
+
+    // When user post link with tags
+    socket.on('post', function(tagsString, link) {
+        var documents = createDocuments(tagsString, link); 
+        dbInsert(documents);
+    });
+
+    // When user query links
+    socket.on('query', function(tagsString) {
+        var query = createQuery(tagsString);
+        dbQuery(query);
+    });
+
+    // Create respond to client side
+    var respond = function(res) {
+        socket.emit('receive', res);
+    }
+
+    // Insert documents into database
+    var dbInsert = function(documents) {
         // Connect to mongodb
         mongoClient.connect(url, function(err, db) {
+            // Find database, create one if does not exist
             var collection = db.collection('documents');
-            var documents = createDocuments(tagString, link); 
-            insertDocuments(documents, collection, function() {
+            collection.insertMany(documents, function(err, res) {
+                // Callback function
+                // Log insert result, may fail
+                console.log(res);
 
-                // FOR TESTING
-                // Search everything from the collection and print result
-                collection.find({}).toArray(function(err, result) {
-                    console.log(result);
-                });
-
-                // Close the db at the end always
+                // Close the db at the end, always
                 db.close();
             });
         });
+    }
 
-        // TODO: Will replaced by return query result only when user query db
-        // FOR TESTING
-        // Send the tag link pair to every client
-        io.emit('receive', tagString, link);
-    });
+    // Query database
+    var dbQuery = function(query) {
+        // Connect to mongodb
+        mongoClient.connect(url, function(err, db) {
+            // Find database, careate one if does not exist
+            var collection = db.collection('documents');
+            // Search db with query and return result filter with flags
+            var resultFlags = {_id: false, key: true, url: true};
+            collection.find(query, resultFlags).toArray(function(err, res) {
+                // Callback function
+                console.log(res);
+                // Respond results to client side
+                respond(res);
+
+                // Close the db at the end, always
+                db.close();
+            });
+        });
+    }
 });
 
+// Helper function to decode string into arrays
+// with commas and spaces
+var stringToArray = function(string) {
+    return string.split(/[ ,]+/);
+}
+
+// Helper function to create query object to search db
+var createQuery = function(tagsString) {
+    var tags = Array.from(new Set(stringToArray(tagsString)));
+    var queryPredicates = [];
+    tags.forEach(function(tag) {
+        queryPredicates.push({key: tag});
+    });
+
+    return {$or: queryPredicates};
+}
+
 // Helper function to create documents with different tags on one link
-var createDocuments = function(tagString, link) {
-    // To prevent duplication, use set to convert from and to array
-    var tags = Array.from(new Set(tagString.split(/[ ,]+/)));
+var createDocuments = function(tagsString, link) {
+    // To prevent duplication, use set to convert from array and back to array
+    var tags = Array.from(new Set(stringToArray(tagsString)));
     var documents = [];
     tags.forEach(function(tag) {
         documents.push({key: tag, url: link});
@@ -47,13 +97,8 @@ var createDocuments = function(tagString, link) {
     return documents;
 }
 
-// Helper function to insert documents to db
-var insertDocuments = function(documents, collection, callback) {
-    collection.insertMany(documents, function(err, result) {
-        callback(result);
-    });
-}
-
+// Server starts listening
 http.listen(3000, function() {
     console.log('listening on *:3000');
 });
+
