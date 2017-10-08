@@ -33,29 +33,39 @@ io.on('connection', function(socket) {
     // Logging purpose only
     console.log('connected');
 
-    // When user post link with tags
+    // When user post link
     socket.on('post', function(tagsString, link) {
         var documents = util.createDocuments(tagsString, link); 
         dbInsert(documents);
     });
 
-    // When user query links
+    // When user query tags
     socket.on('query', function(tagsString) {
         var query = util.createQuery(tagsString);
         dbQuery(query);
     });
 
-    // Create respond to client side
-    var respond = function(res) {
-        socket.emit('receive', res);
-    }
+    // When user join room, also query the room tag automatically
+    socket.on('subscribe', function(room) {
+        room = util.stringToArray(room)[0]; // only get the first tag if there are multiple
+        socket.join(room);
+        socket.emit('subscribe_callback', room);
+    });
+
+    // When user leave room
+    socket.on('unsubscribe', function(room) {
+        socket.leave(room);
+        socket.emit('unsubcribe_callback', room);
+    });
 
     // Insert documents into database
     var dbInsert = function(documents) {
         collection.insertMany(documents, function(err, res) {
             // Callback function
-            // Log insert result, may fail
             console.log(res);
+
+            // Respond posted links to all in room
+            io.emit('receive', res.ops);
         });
     }
 
@@ -68,7 +78,7 @@ io.on('connection', function(socket) {
             console.log(res);
 
             // Respond query result to client
-            respond(res);
+            socket.emit('receive', res);
         });
     }
 
