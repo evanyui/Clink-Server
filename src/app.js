@@ -1,8 +1,16 @@
-var app = require('express')();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+var express = require('express');
+var app = express();
+var fs = require('fs');
+// This line is from the Node.js HTTPS documentation.
+var options = {
+  key: fs.readFileSync('keys/key.pem'),
+  cert: fs.readFileSync('keys/cert.pem')
+};
+var https = require('https').createServer(options, app);
+var io = require('socket.io')(https);
 var mongoClient = require('mongodb').MongoClient;
 
+// Set path to get external js
 var path = require('path');
 var src = path.dirname(require.main.filename);
 var util = require(src + '/utils');
@@ -10,9 +18,11 @@ var util = require(src + '/utils');
 var url = 'mongodb://localhost:27017/clink';
 
 // Router function
-// app.get('/',function(req, res) {
-//    res.sendFile(__dirname + '/html/index.html');
-// });
+app.use("/css", express.static(path.resolve('../Clink-Client/css')));
+app.use("/js", express.static(path.resolve('../Clink-Client/js')));
+app.get('/',function(req, res) {
+   res.sendFile(path.resolve('../Clink-Client/html/index.html'));
+});
 
 // Never close db connection so that database can be reuse
 // db.close();
@@ -31,7 +41,12 @@ mongoClient.connect(url, (err, database) => {
 // When a user is connected
 io.on('connection', (socket) => {
     // Logging purpose only
-    console.log('connected');
+    console.log(socket.id + ' connected');
+
+    // When user disconnected
+    socket.on('disconnect', () => {
+        console.log(socket.id + ' disconnected');
+    });
 
     // When user post link
     socket.on('post', (tagsString, link) => {
@@ -85,7 +100,7 @@ io.on('connection', (socket) => {
 });
 
 // Server starts listening
-http.listen(3000, () => {
+https.listen(3000, () => {
     console.log('listening on *:3000');
 });
 
