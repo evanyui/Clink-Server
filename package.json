@@ -11,8 +11,8 @@
     "scripts": {
         "start": "node src/app.js",
         "test": "node src/app.js",
-        "prestart": "rm -rf data/* && mongod --dbpath=data --fork --logpath /dev/null",
+        "prestart": "rm -rf data && mkdir data && mongod --dbpath=data --fork --logpath /dev/null",
         "prestop": "mongo admin --eval 'db.shutdownServer() > /dev/null'",
-        "pretest": "rm -rf data/* && mongod --dbpath=data --fork --logpath /dev/null"
+        "pretest": "rm -rf data && mkdir data && mongod --dbpath=data --fork --logpath /dev/null"
     }
 }
