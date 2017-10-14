@@ -36,6 +36,9 @@ mongoClient.connect(url, (err, database) => {
     db = database;
     // Find collection, create one if does not exist
     collection = database.collection('documents');
+    
+    // Setting document expiration time of 1 hour
+    collection.createIndex( { "createdAt": 1 }, { expireAfterSeconds: 3600 } )
 });
 
 // When a user is connected
@@ -87,7 +90,7 @@ io.on('connection', (socket) => {
     // Query database
     var dbQuery = function(query) {
         // Search db with query and return result filter with flags
-        var resultFlags = {_id: false, key: true, url: true};
+        var resultFlags = {_id: false, key: true, url: true, "createdAt": true};
         collection.find(query, resultFlags).toArray((err, res) => {
             // Callback function
             console.log(res);

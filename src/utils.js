@@ -14,7 +14,7 @@ var createDocuments = function(tagsString, link) {
     var tags = Array.from(new Set(stringToArray(tagsString)));
     var documents = [];
     tags.forEach(function(tag) {
-        documents.push({key: tag, url: link});
+        documents.push({key: tag, url: link, "createdAt": new Date()});
     });
     return documents;
 }
