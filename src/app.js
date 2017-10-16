@@ -3,8 +3,8 @@ var app = express();
 var fs = require('fs');
 // This line is from the Node.js HTTPS documentation.
 var options = {
-  key: fs.readFileSync('keys/key.pem'),
-  cert: fs.readFileSync('keys/cert.pem')
+    key: fs.readFileSync('keys/key.pem'),
+    cert: fs.readFileSync('keys/cert.pem'),
 };
 var https = require('https').createServer(options, app);
 var io = require('socket.io')(https);
