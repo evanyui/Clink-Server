@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
             console.log(res);
 
             // Respond posted links to all in room
-            io.emit('receive', res.ops);
+            io.to(res.ops[0].key).emit('receive', res.ops);
         });
     }
 
