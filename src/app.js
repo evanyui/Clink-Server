@@ -15,7 +15,7 @@ var path = require('path');
 var src = path.dirname(require.main.filename);
 var util = require(src + '/utils');
 
-var url = 'mongodb://localhost:27017/clink';
+var dbURL = 'mongodb://localhost:27017/clink';
 
 // Router function
 app.use("/css", express.static(path.resolve('../Clink-Client/css')));
@@ -29,7 +29,7 @@ app.get('/',function(req, res) {
 var db, collection;
 
 // Connect the database explicitly to create pooling database
-mongoClient.connect(url, (err, database) => {
+mongoClient.connect(dbURL, (err, database) => {
     if(err)
         throw err;
 
