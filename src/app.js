@@ -20,6 +20,7 @@ var dbURL = 'mongodb://localhost:27017/clink';
 // Router function
 app.use("/css", express.static(path.resolve('../Clink-Client/css')));
 app.use("/js", express.static(path.resolve('../Clink-Client/js')));
+app.use("/images", express.static(path.resolve('../Clink-Client/images')));
 app.get('/',function(req, res) {
    res.sendFile(path.resolve('../Clink-Client/html/index.html'));
 });
