@@ -1,18 +1,21 @@
 // Function to create query object to search db
-var createQuery = function(tag) {
-    tag = formatCaseAndSpace(tag);
+var createQuery = function(requirement) {
     var queryPredicates = [];
-    return {key: tag};
+    if ('key' in requirement)
+        queryPredicates.push({key: formatCaseAndSpace(requirement.key)});
+    if ('url' in requirement)
+        queryPredicates.push({url: formatCaseAndSpace(requirement.url)});
+    return {$and: queryPredicates};
 }
 
 // Function to create document with a pair of tag and link 
 var createDocument = function(tag, link) {
     tag = formatCaseAndSpace(tag);
-    return {key: tag, url: link, "createdAt": new Date()};
+    return {'key': tag, 'url': link, 'createdAt': new Date()};
 }
 
 var createFlags = function() {
-    return {_id: false, key: true, url: true, "createdAt": true};
+    return {'_id': false, 'key': true, 'url': true, 'createdAt': true};
 }
 
 // Helper function to decode string into arrays

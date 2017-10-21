@@ -39,7 +39,7 @@ mongoClient.connect(dbURL, (err, database) => {
     collection = database.collection('documents');
     
     // Setting document expiration time of 1 hour
-    collection.createIndex( { "createdAt": 1 }, { expireAfterSeconds: 3600 } )
+    collection.createIndex( { 'createdAt': 1 }, { expireAfterSeconds: 3600 } )
 });
 
 // When a user is connected
@@ -55,12 +55,12 @@ io.on('connection', (socket) => {
     // When user post link
     socket.on('post', (tag, link) => {
         var doc = util.createDocument(tag, link); 
-        dbInsert(doc);
+        dbUpdate(doc);
     });
 
     // When user query tags
     socket.on('query', (tag) => {
-        var query = util.createQuery(tag);
+        var query = util.createQuery({key: tag});
         dbQuery(query);
     });
 
@@ -86,6 +86,22 @@ io.on('connection', (socket) => {
             // Respond posted links to all in room
             io.to(res.ops[0].key).emit('receive', res.ops);
         });
+    }
+
+    var dbUpdate = function(doc) {
+        collection.findOneAndUpdate({key: doc.key, url: doc.url},
+                          doc,
+                          {upsert: true},
+                          (err, res) => {
+                              // Callback function
+                              console.log(res);
+
+                              // Respond posted links to all in room
+                              socket.broadcast.to(doc.key).emit('receive', [doc]);
+
+                              // Automatically query all the other links with same key
+                              dbQuery(util.createQuery({key: doc.key}));
+                          });
     }
 
     // Query database
