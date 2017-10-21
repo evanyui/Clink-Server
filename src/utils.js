@@ -1,22 +1,18 @@
 // Function to create query object to search db
-var createQuery = function(tagsString) {
-    var tags = Array.from(new Set(stringToArray(tagsString)));
+var createQuery = function(tag) {
+    tag = formatCaseAndSpace(tag);
     var queryPredicates = [];
-    tags.forEach(function(tag) {
-        queryPredicates.push({key: tag});
-    });
-    return {$or: queryPredicates};
+    return {key: tag};
 }
 
-// Function to create documents with different tags on one link
-var createDocuments = function(tagsString, link) {
-    // To prevent duplication, use set to convert from array and back to array
-    var tags = Array.from(new Set(stringToArray(tagsString)));
-    var documents = [];
-    tags.forEach(function(tag) {
-        documents.push({key: tag, url: link, "createdAt": new Date()});
-    });
-    return documents;
+// Function to create document with a pair of tag and link 
+var createDocument = function(tag, link) {
+    tag = formatCaseAndSpace(tag);
+    return {key: tag, url: link, "createdAt": new Date()};
+}
+
+var createFlags = function() {
+    return {_id: false, key: true, url: true, "createdAt": true};
 }
 
 // Helper function to decode string into arrays
@@ -25,10 +21,16 @@ var stringToArray = function(string) {
     return string.split(/[ ,]+/);
 }
 
+var formatCaseAndSpace = function(string) {
+    return string.replace(/\s+/g, '').toLowerCase();
+}
+
 module.exports = {
     createQuery,
-    createDocuments,
-    stringToArray
+    createDocument,
+    createFlags,
+    stringToArray,
+    formatCaseAndSpace
 };
 
 

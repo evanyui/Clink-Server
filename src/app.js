@@ -53,20 +53,20 @@ io.on('connection', (socket) => {
     });
 
     // When user post link
-    socket.on('post', (tagsString, link) => {
-        var documents = util.createDocuments(tagsString, link); 
-        dbInsert(documents);
+    socket.on('post', (tag, link) => {
+        var doc = util.createDocument(tag, link); 
+        dbInsert(doc);
     });
 
     // When user query tags
-    socket.on('query', (tagsString) => {
-        var query = util.createQuery(tagsString);
+    socket.on('query', (tag) => {
+        var query = util.createQuery(tag);
         dbQuery(query);
     });
 
     // When user join room, also query the room tag automatically
     socket.on('subscribe', (room) => {
-        room = util.stringToArray(room)[0]; // only get the first tag if there are multiple
+        room = util.formatCaseAndSpace(room); 
         socket.join(room);
         socket.emit('subscribe_callback', room);
     });
@@ -78,8 +78,8 @@ io.on('connection', (socket) => {
     });
 
     // Insert documents into database
-    var dbInsert = function(documents) {
-        collection.insertMany(documents, (err, res) => {
+    var dbInsert = function(doc) {
+        collection.insert(doc, (err, res) => {
             // Callback function
             console.log(res);
 
@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
     // Query database
     var dbQuery = function(query) {
         // Search db with query and return result filter with flags
-        var resultFlags = {_id: false, key: true, url: true, "createdAt": true};
+        var resultFlags = util.createFlags();
         collection.find(query, resultFlags).toArray((err, res) => {
             // Callback function
             console.log(res);
