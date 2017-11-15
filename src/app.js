@@ -9,6 +9,7 @@ var options = {
 var https = require('https').createServer(options, app);
 var io = require('socket.io')(https);
 var mongoClient = require('mongodb').MongoClient;
+var ObjectID = require('mongodb').ObjectID;
 
 // Set path to get external js
 var path = require('path');
@@ -28,7 +29,6 @@ app.get('/',function(req, res) {
 // Never close db connection so that database can be reuse
 // db.close();
 var db, collection;
-
 // Connect the database explicitly to create pooling database
 mongoClient.connect(dbURL, (err, database) => {
     if(err)
@@ -41,6 +41,9 @@ mongoClient.connect(dbURL, (err, database) => {
     // Setting document expiration time of 1 hour
     collection.createIndex( { 'createdAt': 1 }, { expireAfterSeconds: 3600 } )
 });
+
+// Global
+var DEFAULT_KEY_LENGTH = 3;
 
 // When a user is connected
 io.on('connection', (socket) => {
@@ -78,26 +81,21 @@ io.on('connection', (socket) => {
     });
 
     // Insert documents into database
-    var dbInsert = function(doc) {
-        collection.insert(doc, (err, res) => {
-            // Callback function
-            console.log(res);
-
-            // Respond posted links to all in room
-            io.to(res.ops[0].key).emit('receive', res.ops);
-        });
-    }
-
     var dbUpdate = function(doc) {
+        if(!doc.key.trim())
+            doc.key = new ObjectID().toHexString().substring(0, DEFAULT_KEY_LENGTH);
+
         collection.findOneAndUpdate({key: doc.key, url: doc.url},
                           doc,
                           {upsert: true},
                           (err, res) => {
                               // Callback function
+                              console.log('\nUpdate Results:');
                               console.log(res);
 
                               // Respond posted links to all in room
                               socket.broadcast.to(doc.key).emit('receive', [doc]);
+                              socket.emit('joinRoom', doc.key);
 
                               // Automatically query all the other links with same key
                               dbQuery(util.createQuery({key: doc.key}));
@@ -110,6 +108,7 @@ io.on('connection', (socket) => {
         var resultFlags = util.createFlags();
         collection.find(query, resultFlags).toArray((err, res) => {
             // Callback function
+            console.log('\nQuery Results:');
             console.log(res);
 
             // Respond query result to client
