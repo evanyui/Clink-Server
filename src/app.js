@@ -7,7 +7,7 @@ var options = {
     cert: fs.readFileSync('keys/cert.pem'),
 };
 var http = require('http').createServer(app);
-var io = require('socket.io')(https);
+var io = require('socket.io')(http);
 var mongoClient = require('mongodb').MongoClient;
 var ObjectID = require('mongodb').ObjectID;
 
