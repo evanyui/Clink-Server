@@ -6,7 +6,7 @@ var options = {
     key: fs.readFileSync('keys/key.pem'),
     cert: fs.readFileSync('keys/cert.pem'),
 };
-var https = require('https').createServer(options, app);
+var http = require('http').createServer(app);
 var io = require('socket.io')(https);
 var mongoClient = require('mongodb').MongoClient;
 var ObjectID = require('mongodb').ObjectID;
@@ -122,7 +122,7 @@ io.on('connection', (socket) => {
 });
 
 // Server starts listening
-https.listen(3000, () => {
+http.listen(3000, () => {
     console.log('listening on *:3000');
 });
 
