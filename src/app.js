@@ -16,7 +16,7 @@ var path = require('path');
 var src = path.dirname(require.main.filename);
 var util = require(src + '/utils');
 
-var dbURL = 'mongodb://34.213.81.60:86/clink';
+var dbURL = 'mongodb://34.213.81.60:443/clink';
 
 // Router function
 app.use("/css", express.static(path.resolve('../Clink-Client/css')));
