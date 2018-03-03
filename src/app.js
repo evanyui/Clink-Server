@@ -16,13 +16,16 @@ var path = require('path');
 var src = path.dirname(require.main.filename);
 var util = require(src + '/utils');
 
-var dbURL = 'mongodb://localhost:27017/clink';
+var dbURL = 'mongodb://34.213.81.60:86/clink';
 
 // Router function
 app.use("/css", express.static(path.resolve('../Clink-Client/css')));
 app.use("/js", express.static(path.resolve('../Clink-Client/js')));
 app.use("/images", express.static(path.resolve('../Clink-Client/images')));
 app.get('/',function(req, res) {
+   res.sendFile(path.resolve('../Clink-Client/html/page.html'));
+});
+app.get('/popup',function(req, res) {
    res.sendFile(path.resolve('../Clink-Client/html/index.html'));
 });
 
