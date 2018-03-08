@@ -86,8 +86,11 @@ io.on('connection', (socket) => {
     // Insert documents into database
     var dbUpdate = function(doc) {
         if(!doc.key.trim()) {
-            doc.key = new ObjectID().toHexString();
-            doc.key = doc.key.substring(doc.key.length - DEFAULT_KEY_LENGTH, doc.key.length);
+            var generatedKey = new ObjectID().toHexString();
+            var randomKey = "";
+            for (var i = 0; i < DEFAULT_KEY_LENGTH; i++)
+                randomKey += generatedKey.charAt(Math.floor(Math.random() * possible.length));
+            doc.key = randomKey;
         }
 
         collection.findOneAndUpdate({key: doc.key, url: doc.url},
