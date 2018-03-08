@@ -85,8 +85,10 @@ io.on('connection', (socket) => {
 
     // Insert documents into database
     var dbUpdate = function(doc) {
-        if(!doc.key.trim())
-            doc.key = new ObjectID().toHexString().substring(0, DEFAULT_KEY_LENGTH);
+        if(!doc.key.trim()) {
+            doc.key = new ObjectID().toHexString();
+            doc.key = doc.key.substring(doc.key.length - DEFAULT_KEY_LENGTH, doc.key.length);
+        }
 
         collection.findOneAndUpdate({key: doc.key, url: doc.url},
                           doc,
