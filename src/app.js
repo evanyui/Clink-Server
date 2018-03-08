@@ -89,7 +89,7 @@ io.on('connection', (socket) => {
             var generatedKey = new ObjectID().toHexString();
             var randomKey = "";
             for (var i = 0; i < DEFAULT_KEY_LENGTH; i++)
-                randomKey += generatedKey.charAt(Math.floor(Math.random() * possible.length));
+                randomKey += generatedKey.charAt(Math.floor(Math.random() * generatedKey.length));
             doc.key = randomKey;
         }
 
