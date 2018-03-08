@@ -46,7 +46,7 @@ mongoClient.connect(dbURL, (err, database) => {
 });
 
 // Global
-var DEFAULT_KEY_LENGTH = 3;
+var DEFAULT_KEY_LENGTH = 4;
 
 // When a user is connected
 io.on('connection', (socket) => {
@@ -85,10 +85,8 @@ io.on('connection', (socket) => {
 
     // Insert documents into database
     var dbUpdate = function(doc) {
-        if(!doc.key.trim()) {
-            doc.key = new ObjectID().toHexString();
-            doc.key = doc.key.substring(doc.key.length - DEFAULT_KEY_LENGTH, doc.key.length);
-        }
+        if(!doc.key.trim())
+            doc.key = new ObjectID().toHexString().substring(0, DEFAULT_KEY_LENGTH);
 
         collection.findOneAndUpdate({key: doc.key, url: doc.url},
                           doc,
