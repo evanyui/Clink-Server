@@ -1,13 +1,17 @@
 var express = require('express');
 var app = express();
 var fs = require('fs');
-// This line is from the Node.js HTTPS documentation.
-var options = {
-    key: fs.readFileSync('keys/key.pem'),
-    cert: fs.readFileSync('keys/cert.pem'),
+var certificate =fs.readFileSync('keys/cert.pem',{encoding:'utf8'},function(err, data ) {
+  console.log( data );});
+var privateKey  = fs.readFileSync('keys/key.pem',{encoding:'utf8'},function(err, data ) {
+  console.log( data );});
+var credentials = {
+  key: privateKey,
+  cert: certificate,
+  rejectUnauthorized:false
 };
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+var https = require('https').createServer(credentials, app);
+var io = require('socket.io')(https);
 var mongoClient = require('mongodb').MongoClient;
 var ObjectID = require('mongodb').ObjectID;
 
@@ -127,7 +131,7 @@ io.on('connection', (socket) => {
 });
 
 // Server starts listening
-http.listen(3000, () => {
+https.listen(3000, () => {
     console.log('listening on *:3000');
 });
 
