@@ -3,7 +3,7 @@ var app = express();
 var fs = require('fs');
 var certificate =fs.readFileSync('keys/cert.pem',{encoding:'utf8'},function(err, data ) {
   console.log( data );});
-var privateKey  = fs.readFileSync('keys/key.pem',{encoding:'utf8'},function(err, data ) {
+var privateKey  = fs.readFileSync('keys/privkey.pem',{encoding:'utf8'},function(err, data ) {
   console.log( data );});
 var credentials = {
   key: privateKey,
